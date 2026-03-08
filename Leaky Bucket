@@ -1,0 +1,35 @@
+#include<stdio.h>
+
+int main()
+{
+    int bucket,output,n,i,packet;
+
+    printf("Enter bucket size: ");
+    scanf("%d",&bucket);
+
+    printf("Enter output rate: ");
+    scanf("%d",&output);
+
+    printf("Enter number of packets: ");
+    scanf("%d",&n);
+
+    int stored=0;
+
+    for(i=1;i<=n;i++)
+    {
+        printf("Packet size: ");
+        scanf("%d",&packet);
+
+        if(stored+packet > bucket)
+            printf("Packet dropped\n");
+        else
+            stored+=packet;
+
+        if(stored<output)
+            stored=0;
+        else
+            stored-=output;
+
+        printf("Bucket content: %d\n",stored);
+    }
+}
