@@ -1,0 +1,22 @@
+#include<stdio.h>
+
+int main()
+{
+    char sender[50],receiver[50],msg[200];
+
+    printf("Enter sender email: ");
+    scanf("%s",sender);
+
+    printf("Enter receiver email: ");
+    scanf("%s",receiver);
+
+    printf("Enter message: ");
+    scanf("%s",msg);
+
+    printf("\nSMTP PROCESS\n");
+    printf("HELO\n");
+    printf("MAIL FROM: %s\n",sender);
+    printf("RCPT TO: %s\n",receiver);
+    printf("DATA: %s\n",msg);
+    printf("QUIT\n");
+}
