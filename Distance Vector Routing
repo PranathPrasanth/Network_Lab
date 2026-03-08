@@ -1,0 +1,28 @@
+#include<stdio.h>
+
+int main()
+{
+    int n,i,j,k;
+    int cost[10][10],dist[10];
+
+    printf("Enter number of nodes: ");
+    scanf("%d",&n);
+
+    printf("Enter cost matrix:\n");
+    for(i=0;i<n;i++)
+        for(j=0;j<n;j++)
+            scanf("%d",&cost[i][j]);
+
+    for(i=0;i<n;i++)
+        dist[i]=cost[0][i];
+
+    for(k=0;k<n-1;k++)
+        for(i=0;i<n;i++)
+            for(j=0;j<n;j++)
+                if(dist[j] > dist[i]+cost[i][j])
+                    dist[j]=dist[i]+cost[i][j];
+
+    printf("Distance from node 0:\n");
+    for(i=0;i<n;i++)
+        printf("%d -> %d = %d\n",0,i,dist[i]);
+}
