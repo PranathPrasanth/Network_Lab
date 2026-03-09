@@ -1,28 +1,35 @@
-#include<stdio.h>
+#Create simulator
+set ns [new Simulator]
 
-int main()
-{
-    int n,i,j,k;
-    int cost[10][10],dist[10];
+#Create trace file
+set tracefile [open dv.tr w]
+$ns trace-all $tracefile
 
-    printf("Enter number of nodes: ");
-    scanf("%d",&n);
+#Create nodes
+set n0 [$ns node]
+set n1 [$ns node]
+set n2 [$ns node]
+set n3 [$ns node]
 
-    printf("Enter cost matrix:\n");
-    for(i=0;i<n;i++)
-        for(j=0;j<n;j++)
-            scanf("%d",&cost[i][j]);
+#Create links between nodes
+$ns duplex-link $n0 $n1 1Mb 10ms DropTail
+$ns duplex-link $n1 $n2 1Mb 10ms DropTail
+$ns duplex-link $n2 $n3 1Mb 10ms DropTail
+$ns duplex-link $n0 $n3 1Mb 10ms DropTail
 
-    for(i=0;i<n;i++)
-        dist[i]=cost[0][i];
+#Enable Distance Vector routing
+$ns rtproto DV
 
-    for(k=0;k<n-1;k++)
-        for(i=0;i<n;i++)
-            for(j=0;j<n;j++)
-                if(dist[j] > dist[i]+cost[i][j])
-                    dist[j]=dist[i]+cost[i][j];
-
-    printf("Distance from node 0:\n");
-    for(i=0;i<n;i++)
-        printf("%d -> %d = %d\n",0,i,dist[i]);
+#Finish procedure
+proc finish {} {
+    global ns tracefile
+    $ns flush-trace
+    close $tracefile
+    exit 0
 }
+
+#End simulation
+$ns at 5.0 "finish"
+
+#Run simulation
+$ns run
