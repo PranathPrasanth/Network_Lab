@@ -1,22 +1,63 @@
-#include<stdio.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 
 int main()
 {
-    char sender[50],receiver[50],msg[200];
+    int sock;
+    struct sockaddr_in server;
+    char buffer[1024];
 
-    printf("Enter sender email: ");
-    scanf("%s",sender);
+    // Create socket
+    sock = socket(AF_INET, SOCK_STREAM, 0);
 
-    printf("Enter receiver email: ");
-    scanf("%s",receiver);
+    server.sin_family = AF_INET;
+    server.sin_port = htons(25);               // SMTP port
+    server.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-    printf("Enter message: ");
-    scanf("%s",msg);
+    // Connect to SMTP server
+    connect(sock, (struct sockaddr *)&server, sizeof(server));
 
-    printf("\nSMTP PROCESS\n");
-    printf("HELO\n");
-    printf("MAIL FROM: %s\n",sender);
-    printf("RCPT TO: %s\n",receiver);
-    printf("DATA: %s\n",msg);
-    printf("QUIT\n");
+    recv(sock, buffer, sizeof(buffer), 0);
+    printf("%s", buffer);
+
+    // HELO command
+    strcpy(buffer, "HELO localhost\r\n");
+    send(sock, buffer, strlen(buffer), 0);
+    recv(sock, buffer, sizeof(buffer), 0);
+    printf("%s", buffer);
+
+    // MAIL FROM
+    strcpy(buffer, "MAIL FROM:<sender@test.com>\r\n");
+    send(sock, buffer, strlen(buffer), 0);
+    recv(sock, buffer, sizeof(buffer), 0);
+    printf("%s", buffer);
+
+    // RCPT TO
+    strcpy(buffer, "RCPT TO:<receiver@test.com>\r\n");
+    send(sock, buffer, strlen(buffer), 0);
+    recv(sock, buffer, sizeof(buffer), 0);
+    printf("%s", buffer);
+
+    // DATA command
+    strcpy(buffer, "DATA\r\n");
+    send(sock, buffer, strlen(buffer), 0);
+    recv(sock, buffer, sizeof(buffer), 0);
+    printf("%s", buffer);
+
+    // Message body
+    strcpy(buffer, "Subject: Test Mail\nHello from SMTP client\n.\r\n");
+    send(sock, buffer, strlen(buffer), 0);
+    recv(sock, buffer, sizeof(buffer), 0);
+    printf("%s", buffer);
+
+    // QUIT command
+    strcpy(buffer, "QUIT\r\n");
+    send(sock, buffer, strlen(buffer), 0);
+
+    close(sock);
+
+    return 0;
 }
