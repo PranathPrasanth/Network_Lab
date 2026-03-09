@@ -1,46 +1,56 @@
-#include<stdio.h>
-#define INF 999
+# Create Simulator
+set ns [new Simulator]
 
-int main()
-{
-    int n,i,j,u,v,min;
-    int cost[10][10],dist[10],visited[10]={0};
+# Open Trace File (.tr)
+set tracefile [open out.tr w]
+$ns trace-all $tracefile
 
-    printf("Enter number of nodes: ");
-    scanf("%d",&n);
+# Set Routing Protocol to Link State
+$ns rtproto LS
 
-    printf("Enter cost matrix:\n");
-    for(i=0;i<n;i++)
-        for(j=0;j<n;j++)
-            scanf("%d",&cost[i][j]);
+# Create Nodes
+set n0 [$ns node]
+set n1 [$ns node]
+set n2 [$ns node]
+set n3 [$ns node]
 
-    for(i=0;i<n;i++)
-        dist[i]=INF;
+# Create Links
+$ns duplex-link $n0 $n1 1Mb 10ms DropTail
+$ns duplex-link $n1 $n2 1Mb 10ms DropTail
+$ns duplex-link $n2 $n3 1Mb 10ms DropTail
+$ns duplex-link $n0 $n3 2Mb 20ms DropTail
 
-    dist[0]=0;
+# Create UDP Agent
+set udp [new Agent/UDP]
+$ns attach-agent $n0 $udp
 
-    for(i=0;i<n;i++)
-    {
-        min=INF;
-        for(j=0;j<n;j++)
-        {
-            if(!visited[j] && dist[j]<min)
-            {
-                min=dist[j];
-                u=j;
-            }
-        }
+# Create Null Agent (Receiver)
+set null [new Agent/Null]
+$ns attach-agent $n3 $null
 
-        visited[u]=1;
+# Connect Agents
+$ns connect $udp $null
 
-        for(v=0;v<n;v++)
-        {
-            if(cost[u][v] && dist[v] > dist[u]+cost[u][v])
-                dist[v]=dist[u]+cost[u][v];
-        }
-    }
+# Create CBR Traffic
+set cbr [new Application/Traffic/CBR]
+$cbr set packetSize_ 512
+$cbr set interval_ 0.2
+$cbr attach-agent $udp
 
-    printf("Shortest distances:\n");
-    for(i=0;i<n;i++)
-        printf("%d -> %d = %d\n",0,i,dist[i]);
+# Start and Stop Traffic
+$ns at 1.0 "$cbr start"
+$ns at 4.0 "$cbr stop"
+
+# Finish Procedure
+proc finish {} {
+    global ns tracefile
+    $ns flush-trace
+    close $tracefile
+    exit 0
 }
+
+# End Simulation Time
+$ns at 5.0 "finish"
+
+# Run Simulation
+$ns run
