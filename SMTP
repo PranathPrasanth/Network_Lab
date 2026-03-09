@@ -12,18 +12,29 @@ int main()
 
     // Create socket
     sock = socket(AF_INET, SOCK_STREAM, 0);
+    if(sock < 0)
+    {
+        printf("Socket creation failed\n");
+        return 1;
+    }
 
+    // Server configuration
     server.sin_family = AF_INET;
-    server.sin_port = htons(25);               // SMTP port
+    server.sin_port = htons(25);     // SMTP port
     server.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-    // Connect to SMTP server
-    connect(sock, (struct sockaddr *)&server, sizeof(server));
+    // Connect to server
+    if(connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0)
+    {
+        printf("Connection failed\n");
+        return 1;
+    }
 
+    // Receive server response
     recv(sock, buffer, sizeof(buffer), 0);
     printf("%s", buffer);
 
-    // HELO command
+    // HELO
     strcpy(buffer, "HELO localhost\r\n");
     send(sock, buffer, strlen(buffer), 0);
     recv(sock, buffer, sizeof(buffer), 0);
@@ -41,19 +52,19 @@ int main()
     recv(sock, buffer, sizeof(buffer), 0);
     printf("%s", buffer);
 
-    // DATA command
+    // DATA
     strcpy(buffer, "DATA\r\n");
     send(sock, buffer, strlen(buffer), 0);
     recv(sock, buffer, sizeof(buffer), 0);
     printf("%s", buffer);
 
-    // Message body
-    strcpy(buffer, "Subject: Test Mail\nHello from SMTP client\n.\r\n");
+    // Message
+    strcpy(buffer, "Subject: Test Mail\r\nHello from SMTP client\r\n.\r\n");
     send(sock, buffer, strlen(buffer), 0);
     recv(sock, buffer, sizeof(buffer), 0);
     printf("%s", buffer);
 
-    // QUIT command
+    // QUIT
     strcpy(buffer, "QUIT\r\n");
     send(sock, buffer, strlen(buffer), 0);
 
