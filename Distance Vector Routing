@@ -1,35 +1,44 @@
-#Create simulator
-set ns [new Simulator]
+#include <stdio.h>
 
-#Create trace file
-set tracefile [open dv.tr w]
-$ns trace-all $tracefile
-
-#Create nodes
-set n0 [$ns node]
-set n1 [$ns node]
-set n2 [$ns node]
-set n3 [$ns node]
-
-#Create links between nodes
-$ns duplex-link $n0 $n1 1Mb 10ms DropTail
-$ns duplex-link $n1 $n2 1Mb 10ms DropTail
-$ns duplex-link $n2 $n3 1Mb 10ms DropTail
-$ns duplex-link $n0 $n3 1Mb 10ms DropTail
-
-#Enable Distance Vector routing
-$ns rtproto DV
-
-#Finish procedure
-proc finish {} {
-    global ns tracefile
-    $ns flush-trace
-    close $tracefile
-    exit 0
+int main(){
+    
+    int n,i,j,k;
+    
+    printf("enter no of routers: ");
+    scanf("%d",&n);
+    
+    int dist[n][n],cost[n][n];
+    
+    printf("Enter cost matrix: \n");
+    
+    for(i=0;i<n;i++){
+        for(j=0;j<n;j++){
+            
+            printf("enter cost of %d - %d : ",i,j);
+            scanf("%d",&cost[i][j]);
+            dist[i][j]=cost[i][j];
+        }
+    }
+    
+    for(k=0;k<n;k++){
+        for(i=0;i<n;i++){
+            for(j=0;j<n;j++){
+                if(dist[i][j]>dist[i][k]+dist[k][j]){
+                    
+                    dist[i][j]=dist[i][k]+dist[k][j];
+                }
+            }
+        }
+    }
+    printf("\n");
+    
+    printf("Shortest distance matrix: \n");
+    
+    for(i=0;i<n;i++){
+        for(j=0;j<n;j++){
+            printf("%d\t",dist[i][j]);
+        }
+        printf("\n");
+    }
+    return 0;
 }
-
-#End simulation
-$ns at 5.0 "finish"
-
-#Run simulation
-$ns run
