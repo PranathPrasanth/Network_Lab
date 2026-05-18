@@ -1,0 +1,44 @@
+#include <stdio.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
+void main(){
+	int s,a,b,result;
+	char op;
+	struct sockaddr_in server;
+	
+	s=socket(AF_INET,SOCK_DGRAM,0);
+	
+	server.sin_family=AF_INET;
+	server.sin_port=htons(3000);
+	server.sin_addr.s_addr=INADDR_ANY;
+	
+	printf("Enter 1st operand: ");
+	scanf("%d",&a);
+	
+	printf("Enter 2nd operand: ");
+	scanf("%d",&b);
+	
+	printf("Enter operator (+,-,*,/):");
+	scanf(" %c",&op);
+	
+	if(op=='+'){
+		result=a+b;
+	}
+	else if(op=='-'){
+		result=a-b;
+	}
+	else if(op=='*'){
+		result=a*b;
+	}
+	else if(op=='/' && b!=0){
+		result=a/b;
+	}
+	else{
+		printf("Invalid operation!");
+	}
+	
+	sendto(s,&result,sizeof(result),0,(struct sockaddr*)&server,sizeof(server));
+	
+}
