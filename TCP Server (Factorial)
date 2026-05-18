@@ -1,0 +1,27 @@
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+void main(){
+	int s,ns,result;
+	struct sockaddr_in server;
+	s=socket(AF_INET,SOCK_STREAM,0);
+	
+	server.sin_family=AF_INET;
+	server.sin_port=htons(3000);
+	server.sin_addr.s_addr=INADDR_ANY;
+	
+	bind(s,(struct sockaddr*)&server,sizeof(server));
+	listen(s,1);
+	
+	ns=accept(s,NULL,NULL);
+	
+	recv(ns,&result,sizeof(result),0);
+	
+	printf("Factorial: %d",result);
+	
+	close(ns);
+	close(s);
+}
