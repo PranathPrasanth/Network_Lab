@@ -1,0 +1,36 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+int main(){
+	int s,num,result=1;
+	struct sockaddr_in server;
+	
+	s=socket(AF_INET,SOCK_STREAM,0);
+	
+	server.sin_family=AF_INET;
+	server.sin_port=htons(3000);
+	server.sin_addr.s_addr=INADDR_ANY;
+	
+	connect(s,(struct sockaddr*)&server,sizeof(server));
+	
+	printf("enter number: ");
+	scanf("%d",&num);
+	
+	if(num<0){
+		printf("Invalid!");
+	}
+	else if(num==0 || num==1){
+		result=1;
+	}
+	else{
+		for(int i=1;i<num+1;i++){
+			result*=i;
+		}
+	}
+	
+	send(s,&result,sizeof(result),0);
+	
+	close(s);
+}
