@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+void main(){
+	int s,ns,flag=0;
+	char msg[100],ack[100];
+	struct sockaddr_in server,client;
+	socklen_t len=sizeof(client);
+	
+	s=socket(AF_INET,SOCK_STREAM,0);
+	
+	server.sin_family=AF_INET;
+	server.sin_port=htons(3000);
+	server.sin_addr.s_addr=INADDR_ANY;
+	
+	bind(s,(struct sockaddr*)&server,sizeof(server));
+	listen(s,1);
+	
+	ns=accept(s,(struct sockaddr*)&client,&len);
+	
+	for(int i=1;i<=5;i++){
+		sprintf(msg,"FRAME %d\n",i);
+		send(ns,msg,sizeof(msg),0);
+		
+		recv(ns,ack,sizeof(ack),0);
+		printf("Received :%s\n",ack);
+		
+		if(i==2 && flag==0){
+			printf("Timeout ... retransmitting from FRAME 2\n");
+			flag=1;
+			i=1;
+		}
+	}
+	close(ns);
+	close(s);
+}
