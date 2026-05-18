@@ -1,0 +1,30 @@
+#include <stdio.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
+void main(){
+	int i,s;
+	char msg[100];
+	struct sockaddr_in server;
+	socklen_t len=sizeof(server);
+	
+	s=socket(AF_INET,SOCK_DGRAM,0);
+	
+	server.sin_family=AF_INET;
+	server.sin_port=htons(3000);
+	server.sin_addr.s_addr=INADDR_ANY;
+	
+	for(i=0;i<5;i++){
+		
+		sprintf(msg,"FRAME %d",i);
+		
+		sendto(s,msg,sizeof(msg),0,(struct sockaddr*)&server,len);
+		
+		printf("Packet sent!\n");
+		
+		recvfrom(s,msg,sizeof(msg),0,(struct sockaddr*)&server,&len);
+		
+		printf("Received : %s\n\n",msg);
+	}
+}
