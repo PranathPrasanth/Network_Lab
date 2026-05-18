@@ -1,21 +1,25 @@
-#include<stdio.h>
-#include<string.h>
-#include<sys/socket.h>
-#include<arpa/inet.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
-int main()
-{
-    int sock;
-    char msg[100]="Hello Server";
-
-    sock=socket(AF_INET,SOCK_STREAM,0);
-
-    struct sockaddr_in server;
-    server.sin_family=AF_INET;
-    server.sin_port=htons(9002);
-    server.sin_addr.s_addr=inet_addr("127.0.0.1");
-
-    connect(sock,(struct sockaddr*)&server,sizeof(server));
-
-    send(sock,msg,strlen(msg),0);
+int main(){
+	int s;
+	char msg[100];
+	struct sockaddr_in server;
+	
+	s=socket(AF_INET,SOCK_STREAM,0);
+	
+	server.sin_family=AF_INET;
+	server.sin_port=htons(3000);
+	server.sin_addr.s_addr=INADDR_ANY;
+	
+	connect(s,(struct sockaddr*)&server,sizeof(server));
+	
+	printf("enter message: ");
+	fgets(msg,100,stdin);
+	
+	send(s,msg,sizeof(msg),0);
+	
+	close(s);
 }
