@@ -1,0 +1,31 @@
+#include <stdio.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
+void main(){
+	int s;
+	char msg[100];
+	struct sockaddr_in server,client;
+	socklen_t len=sizeof(client);
+	
+	s=socket(AF_INET,SOCK_DGRAM,0);
+	
+	server.sin_family=AF_INET;
+	server.sin_port=htons(3000);
+	server.sin_addr.s_addr=INADDR_ANY;
+	
+	bind(s,(struct sockaddr*)&server,sizeof(server));
+	
+	while(1){
+		recvfrom(s,msg,sizeof(msg),0,(struct sockaddr*)&client,&len);
+		
+		printf("Message: %s\n",msg);
+		
+		strcpy(msg,"ACK");
+		
+		sendto(s,msg,sizeof(msg),0,(struct sockaddr*)&client,len);
+		
+		printf("ACK sent!\n");
+	}
+}
